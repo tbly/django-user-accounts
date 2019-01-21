@@ -117,7 +117,7 @@ class PasswordMixin(object):
             password = form.cleaned_data[self.form_password_field]
             PasswordHistory.objects.create(
                 user=user,
-                password=make_password(password)
+                password=make_password(password, settings.ACCOUNT_PASSWORD_SALT)
             )
 
 
