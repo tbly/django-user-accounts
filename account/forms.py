@@ -172,6 +172,20 @@ class ChangePasswordForm(forms.Form):
         if not self.user.check_password(self.cleaned_data.get("password_current")):
             raise forms.ValidationError(_("Please type your current password."))
         return self.cleaned_data["password_current"]
+    
+    def clean_password_new(self):
+        # print("test new password")
+        stop_process = False
+        if settings.ACCOUNT_PASSWORD_USE_HISTORY:
+            password = self.cleaned_data["password_new"]
+            # check if password already used
+            stop_process = self.user.password_history.filter(password=make_password(password, settings.ACCOUNT_PASSWORD_SALT)).count() > 0
+            # print("test new password ",self.user.id, password, make_password(password))
+
+        if stop_process == True:
+            raise forms.ValidationError(_("Password has been used before. Please type new password."))
+
+        return self.cleaned_data["password_new"]
 
     def clean_password_new_confirm(self):
         if "password_new" in self.cleaned_data and "password_new_confirm" in self.cleaned_data:
